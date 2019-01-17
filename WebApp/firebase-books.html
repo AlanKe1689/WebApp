@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<meta charset="utf-8">
+	<title>Firebase Database of Books</title>
+
+	<style type="text/css">
+		body, h1, h2 {
+			margin:0;
+			padding:0;
+		}
+	
+		body {
+			background:lemonchiffon;
+			font-family: Arial, sans-serif;
+		}
+	
+		h1 {
+			padding:10px;
+			background:beige;
+		}
+
+		#bookList {
+			margin:0;
+			padding:0;
+			width:200px;
+			float:left;
+			margin:10px;
+			border:1px solid red;
+		}
+
+		#bookList h2 {
+			padding:10px;
+			margin:0;
+			color:black;
+		}
+
+		#bookList li {
+			padding:5px 10px;
+			cursor: pointer;
+			color:black;
+			font-style: italic;
+		}
+
+		#bookList li:hover {
+			background: silver;
+		}
+
+		#bookDetail {
+			float:left;
+			width:200px;
+			margin:10px;
+			margin-left:0;
+			padding:10px;
+			border:1px solid blue;
+			color:black;
+		}
+	</style>
+	</head>
+	<body>
+		<h1>Firebase Book List!<br/></h1>
+ 
+		<ul id="bookList"></ul>
+
+		<div id="bookDetail">
+			<p>Title : <strong class="detailTitle"></strong></p>
+			<p>Year:   <strong class="detailYear"></strong></p>
+			<p>Author: <strong class="detailAuthor"></strong></p>
+		</div>
+ 
+		<script src="https://www.gstatic.com/firebasejs/5.5.6/firebase.js"></script>
+		<script>
+			var config = {
+			apiKey: "AIzaSyDfL9AL9HMIHuwRkUnhWOurlRSQGVM6NVk",
+			authDomain: "alans-book-shop.firebaseapp.com",
+			databaseURL: "https://alans-book-shop.firebaseio.com",
+			projectId: "alans-book-shop",
+			storageBucket: "alans-book-shop.appspot.com",
+			messagingSenderId: "461079155240"
+		};
+		firebase.initializeApp(config);
+  
+		const dbReference     = firebase.database().ref()
+		const booksReference  = dbReference.child('books')
+	
+		const bookListElement = document.getElementById('bookList')
+	
+		booksReference.on('child_added', snap => {
+			let book = snap.val()
+			let listItem = document.createElement('li')
+			listItem.innerHTML=book.title
+			listItem.setAttribute('child-key', snap.key)
+			listItem.onclick=showBookDetails
+			bookListElement.appendChild(listItem)
+		})
+  
+		function showBookDetails(e){
+			var bookID = e.target.getAttribute("child-key");
+
+			const userRef = dbReference.child('books/' + bookID);
+
+			const bookDetailUI = document.getElementById("bookDetail");
+			bookDetailUI.innerHTML = ""
+
+			userRef.on("child_added", snap => {
+				var p = document.createElement("p");
+				p.innerHTML = "<strong>"+snap.key+"</strong>" + ": " + snap.val()
+				bookDetailUI.append(p);
+			});		
+		}
+		</script>
+	</body>
+</html>
